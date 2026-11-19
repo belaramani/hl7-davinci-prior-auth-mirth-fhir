@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MediBridge | Da Vinci Prior Auth Live Monitor</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 24px; }
+        .badge { background: #0284c7; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
+        th { background: #0f172a; color: #94a3b8; text-transform: uppercase; font-size: 12px; }
+        .approved { background: #065f46; color: #6ee7b7; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+        .dtr-tag { background: #1d4ed8; color: #bfdbfe; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div>
+        <h2 style="margin:0;">MediBridge Payer Hub — Da Vinci CRD / DTR / PAS Engine</h2>
+        <p style="margin:4px 0 0; color:#94a3b8; font-size:14px;">CMS-0057-F Interoperability Prototype • Live Mirth Connect Feed</p>
+    </div>
+    <span class="badge">Endpoint: /fhir/Claim/$submit • LIVE</span>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Order / Claim ID</th>
+        <th>FHIR Patient Ref</th>
+        <th>CPT / ICD-10</th>
+        <th>DTR Check</th>
+        <th>PAS Disposition</th>
+        <th>Auth Number</th>
+    </tr>
+    </thead>
+    <tbody id="feedBody">
+    <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Waiting for HL7 ORM^O01 transaction from Mirth Connect...</td></tr>
+    </tbody>
+</table>
+
+<script>
+    async function loadFeed() {
+        const res = await fetch('/fhir/Claim/feed');
+        const data = await res.json();
+        const tbody = document.getElementById('feedBody');
+        if (!data.length) return;
+        tbody.innerHTML = data.map(row => `
+                <tr>
+                    <td>${new Date(row.timestamp).toLocaleTimeString()}</td>
+                    <td><strong>${row.claimId}</strong></td>
+                    <td>${row.patientRef}</td>
+                    <td>${row.cptCode} / ${row.icdCode}</td>
+                    <td><span class="dtr-tag">${row.dtrVerified ? 'DTR Verified' : 'Missing'}</span></td>
+                    <td>${row.disposition}</td>
+                    <td><span class="approved">${row.authNumber}</span></td>
+                </tr>
+            `).join('');
+    }
+    setInterval(loadFeed, 2000);
+    loadFeed();
+</script>
+</body>
+</html>
