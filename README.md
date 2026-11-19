@@ -1,7 +1,7 @@
 
-# HL7 Da Vinci Prior Authorization Engine (CRD, DTR, PAS)
+# HL7 Da Vinci Prior Authorization Engine (SMART on FHIR, CRD, DTR, PAS)
 
-End-to-end **CMS-0057-F Interoperability & Prior Authorization** prototype bridging legacy **HL7 v2 (`ORM^O01`)** clinical orders with **HL7 FHIR R4** and the **Da Vinci Burden Reduction Implementation Guides (CRD, DTR, PAS)** using **Mirth Connect 4.5.2**, **Java Spring Boot 3**, **HAPI FHIR R4**, and **MS SQL Server**.
+End-to-end **CMS-0057-F Interoperability & Prior Authorization** prototype bridging legacy **HL7 v2 (`ORM^O01`)** clinical orders with **HL7 FHIR R4**, **SMART on FHIR Backend Services (`OAuth 2.0`)**, and the **Da Vinci Burden Reduction Implementation Guides (CRD, DTR, PAS)** using **Mirth Connect 4.5.2**, **Java Spring Boot 3**, **HAPI FHIR R4**, and **MS SQL Server**.
 
 ---
 
@@ -20,16 +20,10 @@ End-to-end **CMS-0057-F Interoperability & Prior Authorization** prototype bridg
         │    Returns Coverage Information ("pa-needed": "auth-needed")
         ▼
 [Mirth Channel 3: 03_DaVinci_PAS_Submit]
+        ├──► POST /oauth2/token (client_credentials)► [SMART on FHIR Auth Server :8085]
+        │    Issues Bearer Access Token (system/Questionnaire.read system/Claim.write)
         ├──► Attaches Completed DTR QuestionnaireResponse
-        ├──► POST /fhir/Claim/$submit ────────────► [Spring Boot Payer Hub :8085]
-        │    Adjudicates Medical Necessity (X12 306: A1 Certified / A4 Pended)
+        ├──► POST /fhir/Claim/$submit (Bearer Auth) ► [Spring Boot Payer Hub :8085]
+        │    Validates Bearer Token & Adjudicates Medical Necessity (X12 306: A1 Certified / A4 Pended)
         ├──► INSERT Audit Trail ──────────────────► [MS SQL Server: PriorAuthAuditLog]
-        └──► Live Dashboard Feed ─────────────────► http://localhost:8085/index.html
-### 1. Live Da Vinci Prior Authorization Monitor (Spring Boot UI)
-![Live UI Portal](screenshots/ui-portal.PNG)
-
-### 2. Mirth Connect 4.5.2 Multi-Channel Pipeline
-![Mirth Dashboard](screenshots/mirth-dashboard.PNG)
-
-### 3. MS SQL Server Audit Trail (`PriorAuthAuditLog`)
-![SQL Server Audit Log](screenshots/SQL-AUDIT.PNG)
+        └──► Live Dashboard & Security Console ───► http://localhost:8085/index.html
