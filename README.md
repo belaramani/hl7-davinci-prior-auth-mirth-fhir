@@ -25,3 +25,11 @@ End-to-end **CMS-0057-F Interoperability & Prior Authorization** prototype bridg
         │    Adjudicates Medical Necessity (X12 306: A1 Certified / A4 Pended)
         ├──► INSERT Audit Trail ──────────────────► [MS SQL Server: PriorAuthAuditLog]
         └──► Live Dashboard Feed ─────────────────► http://localhost:8085/index.html
+### 1. Live Da Vinci Prior Authorization Monitor (Spring Boot UI)
+![Live UI Portal](screenshots/ui-portal.PNG)
+
+### 2. Mirth Connect 4.5.2 Multi-Channel Pipeline
+![Mirth Dashboard](screenshots/mirth-dashboard.PNG)
+
+### 3. MS SQL Server Audit Trail (`PriorAuthAuditLog`)
+![SQL Server Audit Log](screenshots/SQL-AUDIT.PNG)
